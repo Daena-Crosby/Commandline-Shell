@@ -1,0 +1,128 @@
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    FlatList,
+    TouchableOpacity,
+    StyleSheet,
+    Modal,
+    Button,
+    TextInput,
+} from 'react-native';
+
+const App = () => {
+    const [hymns, setHymns] = useState([
+        { id: '1', title: 'Amazing Grace', lyrics: 'Amazing grace! How sweet the sound...', isFavorite: false },
+        { id: '2', title: 'How Great Thou Art', lyrics: 'O Lord my God, when I in awesome wonder...', isFavorite: false },
+        { id: '3', title: 'Blessed Assurance', lyrics: 'Blessed assurance, Jesus is mine...', isFavorite: false },
+    ]);
+
+    const [selectedHymn, setSelectedHymn] = useState(null);
+    const [fontSize, setFontSize] = useState(16);
+    const [fontFamily, setFontFamily] = useState('Roboto');
+    const [settingsVisible, setSettingsVisible] = useState(false);
+
+    const toggleFavorite = (id) => {
+        setHymns((prevHymns) =>
+            prevHymns.map((hymn) =>
+                hymn.id === id ? { ...hymn, isFavorite: !hymn.isFavorite } : hymn
+            )
+        );
+    };
+
+    const renderHymn = ({ item }) => (
+        <View style={styles.hymnItem}>
+            <TouchableOpacity onPress={() => setSelectedHymn(item)}>
+                <Text style={styles.hymnTitle}>{item.title}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+                <Text style={styles.favoriteButton}>
+                    {item.isFavorite ? '❤️' : '🤍'}
+                </Text>
+            </TouchableOpacity>
+        </View>
+    );
+
+    return (
+        <View style={styles.container}>
+            <FlatList
+                data={hymns}
+                keyExtractor={(item) => item.id}
+                renderItem={renderHymn}
+            />
+
+            <Modal visible={!!selectedHymn} animationType="slide" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <Text style={[styles.lyrics, { fontSize, fontFamily }]}>
+                        {selectedHymn?.lyrics}
+                    </Text>
+                    <Button title="Close" onPress={() => setSelectedHymn(null)} />
+                </View>
+            </Modal>
+
+            <Button title="Settings" onPress={() => setSettingsVisible(true)} />
+
+            <Modal visible={settingsVisible} animationType="slide" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <Text>Font Size:</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={fontSize.toString()}
+                        onChangeText={(text) => setFontSize(Number(text))}
+                    />
+                    <Text>Font Family:</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={fontFamily}
+                        onChangeText={(text) => setFontFamily(text)}
+                    />
+                    <Button title="Close" onPress={() => setSettingsVisible(false)} />
+                </View>
+            </Modal>
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#fff',
+    },
+    hymnItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    hymnTitle: {
+        fontSize: 18,
+    },
+    favoriteButton: {
+        fontSize: 18,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 16,
+    },
+    lyrics: {
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 8,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 8,
+        marginVertical: 8,
+        width: '80%',
+        backgroundColor: '#fff',
+    },
+});
+
+export default App;
